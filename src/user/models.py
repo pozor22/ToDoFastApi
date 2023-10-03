@@ -1,15 +1,12 @@
 from datetime import datetime
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable
 from sqlalchemy import Column, Integer, String, TIMESTAMP, Boolean
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
+from settings.database import Base
 
 
 class User(SQLAlchemyBaseUserTable[int], Base):
     __tablename__ = "user"
 
-    id = Column(Integer, primary_key=True)
     email = Column(String, nullable=False)
     username = Column(String, nullable=False)
     registered_at = Column(TIMESTAMP, default=datetime.utcnow)
