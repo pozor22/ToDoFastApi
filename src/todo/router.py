@@ -14,7 +14,8 @@ router = APIRouter(
 
 
 @router.post('/new_task')
-async def add_new_task(new_task: TaskCreate, session: AsyncSession = Depends(get_async_session)):
+async def add_new_task(new_task: TaskCreate, user: User = Depends(current_user), session: AsyncSession = Depends(get_async_session)):
+    new_task.user_id = user.id
     stmt = insert(Task).values(**new_task.dict())
     await session.execute(stmt)
     await session.commit()
@@ -22,7 +23,7 @@ async def add_new_task(new_task: TaskCreate, session: AsyncSession = Depends(get
 
 
 @router.get('/user_task')
-async def get_user_task(user: User = Depends(current_user), session: AsyncSession = Depends(get_async_session)):
+async def get_user_tasks(user: User = Depends(current_user), session: AsyncSession = Depends(get_async_session)):
     query = select(Task).where(Task.user_id == user.id)
     result = await session.execute(query)
     return {

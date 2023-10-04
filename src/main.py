@@ -6,6 +6,7 @@ from settings.database import engine
 from user.admin import UserAdmin
 from todo.admin import TaskAdmin
 from todo.router import router as router_todo
+from pages.router import router as router_pages
 from user.models import User
 from user.base_config import current_user
 
@@ -25,11 +26,8 @@ app.include_router(
 )
 
 app.include_router(router_todo)
+app.include_router(router_pages)
 
-
-@app.get("/protected-route")
-def protected_route(user: User = Depends(current_user)):
-    return f"Hello, {user.email}"
 
 admin.add_view(UserAdmin)
 admin.add_view(TaskAdmin)

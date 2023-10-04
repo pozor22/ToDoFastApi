@@ -1,0 +1,49 @@
+{% extends "tasks/base.html" %}
+
+{% block style %}
+    main {
+          padding: 20px;
+        }
+
+        .Text {
+            text-align:center;
+        }
+
+        .task-list {
+          list-style-type: none;
+          padding: 0;
+          text-align:center;
+        }
+
+        .task {
+          margin-bottom: 10px;
+        }
+
+        .task-title {
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+
+        .task-details {
+          color: #888;
+          margin-bottom: 5px;
+        }
+
+        .task-description {
+          margin-bottom: 10px;
+        }
+{% endblock %}
+
+{% block main %}
+    <main>
+        <h2 class="Text">Ваши задачи</h2>
+        {% for task in tasks %}
+            <ul class="task-list">
+              <li class="task">
+                <div class="task-title">{{ task.name }}</div>
+                <div class="task-details">{{ task.description }}</div>
+              </li>
+            </ul>
+        {% endfor %}
+      </main>
+{% endblock %}
