@@ -1,14 +1,13 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
+from sqlalchemy import String, Boolean, ForeignKey
+from sqlalchemy.orm import mapped_column, Mapped
+from settings.database import Base
 
 
 class Task(Base):
-    __tablename__ = "task"
+    __tablename__ = "tasks"
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(60), nullable=False)
-    description = Column(String)
-    is_done = Column(Boolean, default=False)
-    user_id = Column(ForeignKey('user.id'))
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(60), nullable=False)
+    description: Mapped[str]
+    is_done: Mapped[bool] = mapped_column(Boolean, default=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

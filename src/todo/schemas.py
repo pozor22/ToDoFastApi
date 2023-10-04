@@ -5,4 +5,4 @@ class TaskCreate(BaseModel):
     name: str
     description: str
     is_done: bool = False
-    user: int
+    user_id: int
