@@ -32,16 +32,42 @@
         .task-description {
           margin-bottom: 10px;
         }
+
+        a.button {
+          display: inline-block;
+          background: #0B24C7;
+          color: #fff;
+          padding: 12px;
+          border-radius: 3px;
+          text-decoration: none;
+          font-family: Tahoma;
+          font-size: 18px;
+          line-height: 1;
+          font-weight: 100;
+        }
 {% endblock %}
 
 {% block main %}
     <main>
+        <h2 class="Text">Создать новую задачу</h2>
+          <form action="{{ url_for('post_new_task') }}" method="post" class="Text">
+            <p>
+              Name:<br>
+              <input name="Name" type="text">
+            </p>
+            <p>
+              Description:<br>
+              <input name="Description" type="text">
+            </p>
+            <input type="submit" value="Send">
+          </form>
         <h2 class="Text">Ваши задачи</h2>
         {% for task in tasks %}
             <ul class="task-list">
               <li class="task">
                 <div class="task-title">{{ task.name }}</div>
                 <div class="task-details">{{ task.description }}</div>
+                <a class="button" href="{{ url_for('delete_task', task_id=task.id) }}">Delete</a>
               </li>
             </ul>
         {% endfor %}

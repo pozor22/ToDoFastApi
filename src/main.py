@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from user.base_config import auth_backend, fastapi_users
 from user.schemas import UserRead, UserCreate
 from sqladmin import Admin
@@ -6,9 +6,8 @@ from settings.database import engine
 from user.admin import UserAdmin
 from todo.admin import TaskAdmin
 from todo.router import router as router_todo
-from pages.router import router as router_pages
-from user.models import User
-from user.base_config import current_user
+from pages.todo.router import router as router_pages_todo
+from pages.users.router import router as router_pages_users
 
 app = FastAPI()
 admin = Admin(app, engine)
@@ -26,7 +25,8 @@ app.include_router(
 )
 
 app.include_router(router_todo)
-app.include_router(router_pages)
+app.include_router(router_pages_todo)
+app.include_router(router_pages_users)
 
 
 admin.add_view(UserAdmin)
