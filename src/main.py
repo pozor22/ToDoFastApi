@@ -7,7 +7,6 @@ from user.admin import UserAdmin
 from todo.admin import TaskAdmin
 from todo.router import router as router_todo
 from pages.todo.router import router as router_pages_todo
-from pages.users.router import router as router_pages_users
 
 app = FastAPI()
 admin = Admin(app, engine)
@@ -26,7 +25,6 @@ app.include_router(
 
 app.include_router(router_todo)
 app.include_router(router_pages_todo)
-app.include_router(router_pages_users)
 
 
 admin.add_view(UserAdmin)

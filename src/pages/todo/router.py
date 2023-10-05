@@ -26,6 +26,18 @@ def list_tasks(request: Request,
     return templates.TemplateResponse('tasks/tasks.html', context)
 
 
+@router.get('/done/{task_id}')
+async def task_done(task=Depends(done_task)):
+    url = router.url_path_for('list_tasks')
+    return RedirectResponse(url=url, status_code=HTTP_303_SEE_OTHER)
+
+
+@router.get('/delete/{task_id}')
+async def delete_task(task_delete=Depends(delete_task)):
+    url = router.url_path_for('list_tasks')
+    return RedirectResponse(url=url, status_code=HTTP_303_SEE_OTHER)
+
+
 @router.post('/post_new_task')
 async def post_new_task(Name: str = Form(...),
                         Description: str = Form(...),
@@ -37,17 +49,5 @@ async def post_new_task(Name: str = Form(...),
     session.add(new_todo)
     await session.commit()
 
-    url = router.url_path_for('list_tasks')
-    return RedirectResponse(url=url, status_code=HTTP_303_SEE_OTHER)
-
-
-@router.get('/done/{task_id}')
-async def task_done(task=Depends(done_task)):
-    url = router.url_path_for('list_tasks')
-    return RedirectResponse(url=url, status_code=HTTP_303_SEE_OTHER)
-
-
-@router.get('/delete/{task_id}')
-async def delete_task(task_delete=Depends(delete_task)):
     url = router.url_path_for('list_tasks')
     return RedirectResponse(url=url, status_code=HTTP_303_SEE_OTHER)

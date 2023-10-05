@@ -13,25 +13,36 @@ router = APIRouter(
 )
 
 
+@router.get('/user_task')
+async def get_user_tasks(user: User = Depends(current_user),
+                         session: AsyncSession = Depends(get_async_session)):
+    query = select(Task).where(Task.user_id == user.id)
+    result = await session.execute(query)
+    return {
+        'status': 200,
+        'data': result.scalars().all(),
+        'details': None
+    }
+
+
 @router.post('/new_task')
 async def add_new_task(
         new_task: TaskCreate,
         user: User = Depends(current_user),
-        session: AsyncSession = Depends(get_async_session)
-):
+        session: AsyncSession = Depends(get_async_session)):
     new_task.user_id = user.id
     stmt = insert(Task).values(**new_task.dict())
-    await session.execute(stmt)
+    result = await session.execute(stmt)
     await session.commit()
-    return {'status': 'success'}
-
-
-@router.get('/user_task')
-async def get_user_tasks(user: User = Depends(current_user), session: AsyncSession = Depends(get_async_session)):
-    query = select(Task).where(Task.user_id == user.id)
-    result = await session.execute(query)
     return {
-        'data': result.scalars().all(),
+        'status': 200,
+        'data': {
+            'id': result.inserted_primary_key[0],
+            'description': new_task.description,
+            'is_done': new_task.is_done,
+            'user_id': new_task.user_id
+        },
+        'details': None
     }
 
 
@@ -56,15 +67,23 @@ async def done_task(task_id: int,
     return {'status': 'idi naxui'}
 
 
-@router.get('/delete_task')
+@router.delete('/delete_task')
 async def delete_task(task_id: int,
                       session: AsyncSession = Depends(get_async_session),
                       user: User = Depends(current_user)):
-    test = await session.get(Task, task_id)
-    if test.user_id == user.id:
+    task = await session.get(Task, task_id)
+    if task.user_id == user.id:
         stmt = delete(Task).where(Task.id == task_id)
         await session.execute(stmt)
         await session.commit()
 
-        return {'status': 'norm'}
-    return {'status': 'idi naxui'}
+        return {
+            'status': 200,
+            'data': task,
+            'details': 'delete this task'
+        }
+    return {
+        'status': 200,
+        'data': None,
+        'details': 'you dont have enough rights to delete this task'
+    }
