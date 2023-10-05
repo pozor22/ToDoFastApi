@@ -8,7 +8,8 @@ from user.base_config import current_user
 from user.models import User
 from starlette.status import HTTP_303_SEE_OTHER
 from starlette.responses import RedirectResponse
-from sqlalchemy import delete
+from todo.router import delete_task, done_task
+
 
 router = APIRouter(prefix='/pages/todo', tags=['Pages_todo'])
 
@@ -16,7 +17,8 @@ templates = Jinja2Templates(directory='templates')
 
 
 @router.get('/')
-def list_tasks(request: Request, tasks=Depends(get_user_tasks)):
+def list_tasks(request: Request,
+               tasks=Depends(get_user_tasks)):
     context = {
         'request': request,
         'tasks': tasks['data'],
@@ -39,11 +41,13 @@ async def post_new_task(Name: str = Form(...),
     return RedirectResponse(url=url, status_code=HTTP_303_SEE_OTHER)
 
 
-@router.get('/delete/{task_id}')
-async def delete_task(task_id: int, session: AsyncSession = Depends(get_async_session)):
-    stmt = delete(Task).where(Task.id == task_id)
-    await session.execute(stmt)
-    await session.commit()
+@router.get('/done/{task_id}')
+async def task_done(task=Depends(done_task)):
+    url = router.url_path_for('list_tasks')
+    return RedirectResponse(url=url, status_code=HTTP_303_SEE_OTHER)
 
+
+@router.get('/delete/{task_id}')
+async def delete_task(task_delete=Depends(delete_task)):
     url = router.url_path_for('list_tasks')
     return RedirectResponse(url=url, status_code=HTTP_303_SEE_OTHER)

@@ -45,6 +45,16 @@
           line-height: 1;
           font-weight: 100;
         }
+
+        .done_false {
+          background: #FA8072;
+          width: 20%;
+        }
+
+        .done_true {
+          background: green;
+          width: 20%;
+        }
 {% endblock %}
 
 {% block main %}
@@ -52,11 +62,11 @@
         <h2 class="Text">Создать новую задачу</h2>
           <form action="{{ url_for('post_new_task') }}" method="post" class="Text">
             <p>
-              Name:<br>
+              Название:<br>
               <input name="Name" type="text">
             </p>
             <p>
-              Description:<br>
+              Описание:<br>
               <input name="Description" type="text">
             </p>
             <input type="submit" value="Send">
@@ -67,7 +77,15 @@
               <li class="task">
                 <div class="task-title">{{ task.name }}</div>
                 <div class="task-details">{{ task.description }}</div>
-                <a class="button" href="{{ url_for('delete_task', task_id=task.id) }}">Delete</a>
+                {% if task.is_done == False %}
+                  <center>
+                      <p class="done_false">В ходе выполнения</p>
+                  </center>
+                {% else %}
+                  <center><p class="done_true">Выполнено</p></center>
+                {% endif %}
+                <a class="button" href="{{ url_for('task_done', task_id=task.id) }}">Изменить статус задания</a>
+                <a class="button" href="{{ url_for('delete_task', task_id=task.id) }}">Удалить</a>
               </li>
             </ul>
         {% endfor %}
