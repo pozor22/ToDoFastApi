@@ -40,6 +40,7 @@ async def add_new_task(
         'status': 200,
         'data': {
             'id': result.inserted_primary_key[0],
+            'name': new_task.name,
             'description': new_task.description,
             'is_done': new_task.is_done,
             'user_id': new_task.user_id
@@ -52,66 +53,57 @@ async def add_new_task(
 async def done_task(task_id: int,
                     session: AsyncSession = Depends(get_async_session),
                     user: User = Depends(current_user)):
-    task = await session.get(Task, task_id)
-    if task.user_id == user.id:
-        if task.is_done:
-            stmt = update(Task).where(Task.id == task_id).values(is_done=False)
-            await session.execute(stmt)
-            await session.commit()
-
+    try:
+        stmt = update(Task).\
+            where(Task.id == task_id, Task.user_id == user.id, Task.is_done == False).\
+            values(is_done=True).\
+            returning(Task.is_done)
+        result = await session.execute(stmt)
+        await session.commit()
+        return {
+            'status': 200,
+            'data': result.scalars().all()[0],
+            'details': 'The "is_done" row has been changed from False to True'
+        }
+    except:
+        stmt = update(Task). \
+            where(Task.id == task_id, Task.user_id == user.id, Task.is_done == True). \
+            values(is_done=False). \
+            returning(Task.is_done)
+        result = await session.execute(stmt)
+        await session.commit()
+        try:
             return {
                 'status': 200,
-                'data': {
-                    'id': task.id,
-                    'name': task.name,
-                    'description': task.description,
-                    'is_done': task.is_done,
-                    'user_id': task.user_id
-                },
+                'data': result.scalars().all()[0],
                 'details': 'The "is_done" row has been changed from True to False'
             }
-        else:
-            stmt = update(Task).where(Task.id == task_id).values(is_done=True)
-            await session.execute(stmt)
-            await session.commit()
-
+        except:
             return {
                 'status': 200,
-                'data': {
-                    'id': task.id,
-                    'name': task.name,
-                    'description': task.description,
-                    'is_done': task.is_done,
-                    'user_id': task.user_id
-                },
-                'details': 'The "is_done" row has been changed from False to True'
+                'data': None,
+                'details': 'you dont have enough rights to delete this task'
             }
-
-    return {
-        'status': 200,
-        'data': None,
-        'details': 'you dont have enough rights to delete this task'
-    }
 
 
 @router.delete('/delete_task')
 async def delete_task(task_id: int,
                       session: AsyncSession = Depends(get_async_session),
                       user: User = Depends(current_user)):
-    task = await session.get(Task, task_id)
-    if task.user_id == user.id:
-        stmt = delete(Task).where(Task.id == task_id)
-        await session.execute(stmt)
+    try:
+        stmt = delete(Task).where(Task.id == task_id, Task.user_id == user.id)\
+            .returning(Task.user_id)
+        result = await session.execute(stmt)
         await session.commit()
-
+        if result.scalars().all()[0] == user.id:
+            return {
+                'status': 200,
+                'data': None,
+                'details': 'delete this task'
+            }
+    except:
         return {
             'status': 200,
-            'data': task,
-            'details': 'delete this task'
+            'data': None,
+            'details': 'you dont have enough rights to delete this task'
         }
-
-    return {
-        'status': 200,
-        'data': None,
-        'details': 'you dont have enough rights to delete this task'
-    }
