@@ -49,7 +49,7 @@ async def add_new_task(
     }
 
 
-@router.post('/done')
+@router.put('/done')
 async def done_task(task_id: int,
                     session: AsyncSession = Depends(get_async_session),
                     user: User = Depends(current_user)):
